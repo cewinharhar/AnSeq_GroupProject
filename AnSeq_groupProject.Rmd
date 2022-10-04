@@ -1,0 +1,128 @@
+---
+title: 'AnSeq_groupProject'
+output: pdf_document
+---
+
+-   [Introduction]
+
+    -   [Data]
+
+-   [Exploratory Data Analysis (EDA)]
+
+    -   [Visualization]
+    -   [Discussion](#discussion-2)
+
+-   [Indicators]
+
+-   [Simple Model]
+
+    -   [Discussion](#discussion-2)
+    -   [Fitting](#fitting-1)
+
+-   [Exponential Smoothing]
+
+    -   [Discussion](#discussion-2)
+    -   [Fitting](#fitting-1)
+    -   [Analysis](#analysis-1)
+    -   [Comparison with simple model]
+
+-   [ETS AND AUTO-ARIMA]
+
+    -   [Fitting](#fitting-1)
+    -   [Analysis](#analysis-1)
+    -   [Discussion](#discussion-2)
+    -   [Comparison with other models]
+
+-   [Conclusion]
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+```
+
+# Introduction
+
+```{r}
+
+```
+
+## Data
+
+# Exploratory Data Analysis (EDA) {#part-1---exploratory-data-analysis-eda}
+
+## Visualization
+
+```{r}
+
+```
+
+## Discussion
+
+# Indicators
+
+# Simple Model
+
+## Discussion
+
+blabla
+
+## Fitting
+
+```{r}
+
+```
+
+# Exponential Smoothing
+
+## Discussion
+
+blabla 
+
+## Fitting
+
+```{r}
+
+```
+
+## Analysis
+
+```{r}
+
+```
+
+## Comparison with simple model
+
+blabla
+
+```{r}
+
+```
+
+# ETS AND AUTO-ARIMA
+
+## Fitting {#fitting-1}
+
+```{r}
+
+```
+
+## Analysis {#analysis-1}
+
+```{r}
+
+```
+
+## Discussion {#discussion-2}
+
+blabla 
+
+## Comparison with other models
+
+```{r}
+
+```
+
+# Conclusion
+
+blabla
