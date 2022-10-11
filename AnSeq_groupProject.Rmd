@@ -7,7 +7,7 @@ output: pdf_document
 
     -   [Data]
 
--   [Exploratory Data Analysis (EDA)]
+-   [Exploratory Data Analysis (EDA)](#part-1---exploratory-data-analysis-eda)
 
     -   [Visualization]
     -   [Discussion](#discussion-2)
@@ -39,9 +39,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(eval = TRUE)
 knitr::opts_chunk$set(message = FALSE)
+
+#needed libraries
+library(Mcomp)
 ```
 
-# Introduction
+# Introduction (Kevin)
 
 ```{r}
 
@@ -49,7 +52,7 @@ knitr::opts_chunk$set(message = FALSE)
 
 ## Data
 
-# Exploratory Data Analysis (EDA) {#part-1---exploratory-data-analysis-eda}
+# Exploratory Data Analysis (EDA) {#part-1---exploratory-data-analysis-eda} (This)
 
 ## Visualization
 
@@ -59,9 +62,11 @@ knitr::opts_chunk$set(message = FALSE)
 
 ## Discussion
 
-# Indicators
+# Indicators (Kevin)
 
-# Simple Model
+RMSE
+
+# Simple Model (This)
 
 ## Discussion
 
@@ -73,13 +78,13 @@ blabla
 
 ```
 
-# Exponential Smoothing
+# Exponential Smoothing (Kevin)
 
-## Discussion
+## Discussion {#discussion-2}
 
-blabla 
+blabla
 
-## Fitting
+## Fitting {#fitting-1}
 
 ```{r}
 
@@ -99,9 +104,9 @@ blabla
 
 ```
 
-# ETS AND AUTO-ARIMA
+# ETS AND AUTO-ARIMA (Kevin)
 
-## Fitting {#fitting-1}
+## Fitting
 
 ```{r}
 
@@ -113,9 +118,9 @@ blabla
 
 ```
 
-## Discussion {#discussion-2}
+## Discussion
 
-blabla 
+blabla
 
 ## Comparison with other models
 
@@ -123,6 +128,6 @@ blabla
 
 ```
 
-# Conclusion
+# Conclusion (This)
 
 blabla
