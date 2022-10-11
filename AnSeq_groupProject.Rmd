@@ -42,15 +42,26 @@ knitr::opts_chunk$set(message = FALSE)
 
 #needed libraries
 library(Mcomp)
+library(ggplot2)
 ```
 
 # Introduction (Kevin)
 
+The goal of this project is to sharpen our time series forcasting skills as well as the interpretation of the generated predictions. 
+
+## Data
+
+We use the data called n1490 which are datapoints for amazon shipments between the years 1990 to 1996 
+
 ```{r}
+subset(M3, "monthly")["N1490"] %>% str()
+
+n1490 <- subset(M3, "monthly")["N1490"]
+
+autoplot(n1490$N1490)
 
 ```
 
-## Data
 
 # Exploratory Data Analysis (EDA) {#part-1---exploratory-data-analysis-eda} (This)
 
@@ -87,6 +98,9 @@ blabla
 ## Fitting {#fitting-1}
 
 ```{r}
+
+
+
 
 ```
 
