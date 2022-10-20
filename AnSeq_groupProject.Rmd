@@ -54,11 +54,11 @@ The goal of this project is to sharpen our time series forcasting skills as well
 We use the data called n1490 which are datapoints for amazon shipments between the years 1990 to 1996
 
 ```{r}
-subset(M3, "monthly")["N1490"] %>% str()
+subset(M3, "monthly")["N1483"] %>% str()
 
-n1490 <- subset(M3, "monthly")["N1490"]
+data <- subset(M3, "monthly")["N1483"]
 
-autoplot(n1490$N1490)
+autoplot(data$N1483)
 
 ```
 
@@ -94,6 +94,11 @@ blabla
 
 blabla
 
+- problem of linear approach: prediciting far into future will get high uncertainty
+- damped will end converge
+
+
+SHOW RESIDUALS
 ## Fitting {#fitting-1}
 
 ```{r}
