@@ -67,10 +67,31 @@ autoplot(data$N1483)
 ## Visualization
 
 ```{r}
+ggsubseriesplot(data$N1483$x) +
+  ggtitle("Seasonal plot: Monthly shipments")
+
+ggseasonplot(data$N1483$x, year.labels=TRUE, year.labels.left=TRUE) +
+  ggtitle("Seasonal plot: Monthly shipments")
+
+ggAcf(data$N1483$x) 
+
+gglagplot(data$N1483$x)
 
 ```
 
 ## Discussion
+
+The following section outlines the selected dataset in an explanatory manner to provide a better understanding of the underlying data and to discover patterns and anomalies in the chosen time series.
+
+The chosen dataset consists of 126 entries containing shipment data from 1985 to 1995 with a monthly frequency. As being part of the M3 competition data set, the given time series is already split up in a training and testing set containing 108 and 18 entries respectively.
+
+As represented in the chart N1483, the chosen time series indicates a strong trend as the "amount" of shipments are growing constantly from 1985 to 1995. Furthermore, the graph implies that the time series has no seasonality. The mentioned constant trend and lack of seasonality can also be observed in appendix x and y. Appendix x clearly depicts that there is a constant growing trend in each month over the years in the given time series. In addition, this constant increasing trend over the months underlines that there is no seasonality in sequential data. The same observation can be made in appendix y, which clearly shows that there is now no seasonality as the plotted yearly shipments have no common peaks or lows. Instead the yearly lines tend to increase during the year. This growth over the year leads to the gaps between the line graphs, which represent the shipment over a year. Those described features emphasize the fact that the time series has an increasing trend and no seasonality.
+
+Cycling trend ? -- Meiner Meinung nach nicht
+
+The correlogram as well as the seasonal lag plot in appendix x and z, strengthen the assumption of an increasing trend and a missing seasonality. The autocorrelogram (ACF) in appendix x manifest that the autocorrelations for smaller lags are large and positive, which is typically for trendy data. ACF decreases over time - Rückschlüsse besprechen mit Kevin
+
+GGlagplot mit kevin besprechen alle nahe zusammen jedoch eine Verschiebung zu sehen
 
 # Indicators (Kevin)
 
@@ -94,12 +115,10 @@ blabla
 
 blabla
 
-- problem of linear approach: prediciting far into future will get high uncertainty
-- damped will end converge
+-   problem of linear approach: prediciting far into future will get high uncertainty
+-   damped will end converge
 
-
-SHOW RESIDUALS
-## Fitting {#fitting-1}
+SHOW RESIDUALS \## Fitting {#fitting-1}
 
 ```{r}
 
@@ -124,7 +143,7 @@ blabla
 
 # ETS AND AUTO-ARIMA (Kevin)
 
-## Fitting
+## Fitting {#fitting-1}
 
 ```{r}
 
