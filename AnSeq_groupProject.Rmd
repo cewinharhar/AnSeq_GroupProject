@@ -43,6 +43,8 @@ knitr::opts_chunk$set(message = FALSE)
 #needed libraries
 library(Mcomp)
 library(ggplot2)
+library()
+library(gridExtra)
 ```
 
 # Introduction (Kevin)
@@ -67,15 +69,22 @@ autoplot(data$N1483)
 ## Visualization
 
 ```{r}
-ggsubseriesplot(data$N1483$x) +
+#use variable for future tasks
+df.Train <- data$N1483$x
+df.Test <- data$N1483$xx
+```
+
+
+```{r}
+ggsubseriesplot(df.Train) +
   ggtitle("Seasonal plot: Monthly shipments")
 
-ggseasonplot(data$N1483$x, year.labels=TRUE, year.labels.left=TRUE) +
+ggseasonplot(df.Train, year.labels=TRUE, year.labels.left=TRUE) +
   ggtitle("Seasonal plot: Monthly shipments")
 
-ggAcf(data$N1483$x) 
+ggAcf(df.Train) 
 
-gglagplot(data$N1483$x)
+gglagplot(df.Train)
 
 ```
 
@@ -95,7 +104,7 @@ GGlagplot mit kevin besprechen alle nahe zusammen jedoch eine Verschiebung zu se
 
 # Indicators (Kevin)
 
-RMSE
+USE *MAE* BECAUSE OF UNITS
 
 # Simple Model (This)
 
@@ -113,33 +122,118 @@ blabla
 
 ## Discussion {#discussion-2}
 
-blabla
-
--   problem of linear approach: prediciting far into future will get high uncertainty
--   damped will end converge
-
-SHOW RESIDUALS \## Fitting {#fitting-1}
-
-```{r}
-
-
-
-
-```
+For the different methods of the exponential smoothing, one may choose the one which fits best to the available data. 
+In our case, due to the seasonal behaviour, the positive trend and the expected stagnation (which is normal for shipments in a company due to various reasons) we choose the holt-Winters damped multiplicative model but for a better overview we fitted all holt-winters model. 
 
 ## Analysis
 
 ```{r}
 
+df.hwAdd <- hw(df.Train, seasonal = "additive", h = length(df.Test))
+df.hwAddDamped <- hw(df.Train, seasonal = "additive", damped = TRUE, h = length(df.Test))
+df.hwMulti <- hw(df.Train, seasonal = "multiplicative", h = length(df.Test))
+df.hwMultiDamped <- hw(df.Train, seasonal = "multiplicative", damped = TRUE, h = length(df.Test))
+
+#plot
+
+df.hwAddPlot <- autoplot(df.hwAdd, color="AdditiveMethod") +
+  labs(x="Time", y="Shipments", color = "Legend") +
+  autolayer(df.Test)
+
+df.hwAddDampedPlot <- autoplot(df.hwAddDamped, color="AdditiveMethod") +
+  labs(x="Time", y="Shipments", color = "Legend") +
+  autolayer(df.Test)
+
+df.hwMultiPlot <- autoplot(df.hwMulti, color="MultiMethod") +
+  labs(x="Time", y="Shipments", color = "Legend") +
+  autolayer(df.Test)
+
+df.hwMultiDampedPlot <- autoplot(df.hwMultiDamped, color="MultiMethod") +
+  labs(x="Time", y="Shipments", color = "Legend") +
+  autolayer(df.Test)
+
+grid.arrange(df.hwAddPlot, df.hwAddDampedPlot,  df.hwMultiPlot, df.hwMultiDampedPlot, nrow=4)
+```
+As can be seen from the above plots, the Damped Holt-Winter's multiplicative Method seems to be the most accurate (by eye) for the predictions. 
+This doesnt
+Lets evaluate this finding numericaly:
+
+Accuracy of the fitted values for the training data
+```{r}
+
+accDf <- rbind(
+  accuracy(df.hwAdd$fitted, df.Train),
+  accuracy(df.hwAddDamped$fitted, df.Train),
+  accuracy(df.hwMulti$fitted, df.Train),
+  accuracy(df.hwMultiDamped$fitted, df.Train)
+) 
+rownames(accDf) <- c("hw Additive", "hw damped Additive", "hw Multiplicative", "hw damped Multiplicative")
+
+print(accDf)
+
 ```
 
-## Comparison with simple model
+It can be seen that the multiplicative Method shows the best overall results for the fitting. 
 
-blabla
+But how are the forecasting results for these models. For this approach the accuracy of the models mean prediction with the test data is calculated:
 
 ```{r}
 
+accDf <- rbind(
+  accuracy(df.hwAdd$mean, df.Test),
+  accuracy(df.hwAddDamped$mean, df.Test),
+  accuracy(df.hwMulti$mean, df.Test),
+  accuracy(df.hwMultiDamped$mean, df.Test)
+) 
+rownames(accDf) <- c("hw Additive", "hw damped Additive", "hw Multiplicative", "hw damped Multiplicative")
+
+print(accDf)
 ```
+
+For the forcasting the damped multiplicative model shows the best RMSE with 1147.369. Nevertheless, the prediction interval is higher than the undamped model and should therefore be considered. 
+The reason why the damped multiplicative model outperformed for forecasting can be explained as followed: 
+The data which are handled are shipments over the years. Although the increase in shipemnts over the years seems linear, a company may come to stagnation for various reasons (political, economical, logistical). Therefore with the usage of the damped model this stagnation is considered which can be seen for the $\phi$ parameter in the following block. 
+```{r}
+summary(df.hwMultiDamped$model)
+```
+The $\phi$ Parameter has the value 0.98 which shows the change of the slope over time. 
+
+Here the original and fitted values from the (damped) multiplicative model.  
+```{r}
+
+original <- ts(c(df.Train,df.Test), start=start(df.Train), frequency=frequency(df.Train))
+
+grid.arrange(
+  autoplot(original, series = "original") +
+  autolayer(df.hwMultiDamped$fitted, series = "fitted") +
+  autolayer(df.hwMultiDamped$mean, series = "predicted") + ggtitle("Damped Multiplicative"),
+  
+autoplot(original, series = "original") +
+  autolayer(df.hwMulti$fitted, series = "fitted") +
+  autolayer(df.hwMulti$mean, series = "predicted")  + ggtitle("Multiplicative")
+)
+
+```
+
+Check the residuals
+```{r}
+
+checkresiduals(df.hwMultiDamped)
+```
+
+
+Cross validation
+```{r}
+
+```
+
+
+
+
+## Comparison with simple model
+
+-   problem of linear approach: prediciting far into future will get high uncertainty
+
 
 # ETS AND AUTO-ARIMA (Kevin)
 
