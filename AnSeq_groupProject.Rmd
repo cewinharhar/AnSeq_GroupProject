@@ -156,7 +156,15 @@ grid.arrange(df.hwAddPlot, df.hwAddDampedPlot,  df.hwMultiPlot, df.hwMultiDamped
 ```
 As can be seen from the above plots, the Damped Holt-Winter's multiplicative Method seems to be the most accurate (by eye) for the predictions. 
 This doesnt
-Lets evaluate this finding numericaly:
+Before evaluating the accuracy we want to check the residuals. 
+
+#### Residuals
+```{r}
+checkresiduals(df.hwMultiDamped)
+```
+The Ljung-Box test shows a p-value << 0.05 and therefore the NUll-Hypothesis is rejected. The residuals migt be auto-correlated.    
+
+From the ACF a pattern is difficult to detect but s significant-autocorrelation is shown at lag 4 and 11. R12 is small and indicates no seasonality. 
 
 Accuracy of the fitted values for the training data
 ```{r}
@@ -172,7 +180,6 @@ rownames(accDf) <- c("hw Additive", "hw damped Additive", "hw Multiplicative", "
 print(accDf)
 
 ```
-
 It can be seen that the multiplicative Method shows the best overall results for the fitting. 
 
 But how are the forecasting results for these models. For this approach the accuracy of the models mean prediction with the test data is calculated:
@@ -193,46 +200,45 @@ print(accDf)
 For the forcasting the damped multiplicative model shows the best RMSE with 1147.369. Nevertheless, the prediction interval is higher than the undamped model and should therefore be considered. 
 The reason why the damped multiplicative model outperformed for forecasting can be explained as followed: 
 The data which are handled are shipments over the years. Although the increase in shipemnts over the years seems linear, a company may come to stagnation for various reasons (political, economical, logistical). Therefore with the usage of the damped model this stagnation is considered which can be seen for the $\phi$ parameter in the following block. 
+
 ```{r}
 summary(df.hwMultiDamped$model)
 ```
 The $\phi$ Parameter has the value 0.98 which shows the change of the slope over time. 
 
-Here the original and fitted values from the (damped) multiplicative model.  
+Here the original and fitted values from the damped multiplicative model.  
 ```{r}
 
 original <- ts(c(df.Train,df.Test), start=start(df.Train), frequency=frequency(df.Train))
 
-grid.arrange(
-  autoplot(original, series = "original") +
-  autolayer(df.hwMultiDamped$fitted, series = "fitted") +
-  autolayer(df.hwMultiDamped$mean, series = "predicted") + ggtitle("Damped Multiplicative"),
-  
 autoplot(original, series = "original") +
-  autolayer(df.hwMulti$fitted, series = "fitted") +
-  autolayer(df.hwMulti$mean, series = "predicted")  + ggtitle("Multiplicative")
-)
+autolayer(df.hwMultiDamped$fitted, series = "fitted") +
+autolayer(df.hwMultiDamped$mean, series = "predicted") + ggtitle("Damped Multiplicative")
+
 
 ```
-
-Check the residuals
-```{r}
-
-checkresiduals(df.hwMultiDamped)
-```
-
-
-Cross validation
-```{r}
-
-```
-
 
 
 
 ## Comparison with simple model
 
--   problem of linear approach: prediciting far into future will get high uncertainty
+@This: Da dis model inetue namens "df.lin"
+
+```{r}
+
+accDf <- rbind(
+  accuracy(df.lin$mean, df.Test),
+  accuracy(df.hwAddDamped$mean, df.Test)
+) 
+rownames(accDf) <- c("linear", "hw damped Multiplicative")
+
+print(accDf)
+
+```
+
+We can see that the damped holts-Winter method outperformes the linear model. This 
+
+Furthermore the predicition interval of the linear model gets very high which makes it hard to predict far into the future.  
 
 
 # ETS AND AUTO-ARIMA (Kevin)
