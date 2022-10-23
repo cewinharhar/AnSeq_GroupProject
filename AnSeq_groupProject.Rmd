@@ -109,11 +109,40 @@ USE *MAE* BECAUSE OF UNITS
 
 ## Discussion
 
-blabla
+snaive und mean kann generell ausgeschlossen werden?
+
+h=20?
+
+box test
+
+naive und rwf gleiches resultat?
+
+Naive besser als drift methode? wieso?
 
 ## Fitting
 
 ```{r}
+naive_shipment <- naive(df.Train, h=20)
+autoplot(naive_shipment)
+rwf_shipment <- rwf(df.Train, drif=TRUE, h=20)
+autoplot(rwf_shipment)
+mean_shipment <- meanf(df.Train, h=20)
+autoplot(mean_shipment)
+
+autoplot(rwf_shipment)+autolayer(fitted(rwf_shipment), series = "fitted")
+summary(rwf_shipment)
+
+
+checkresiduals(naive(df.Train))
+checkresiduals(rwf(df.Train))
+
+
+```
+
+```{r}
+accuracy(naive_shipment, df.Test)
+accuracy(rwf_shipment, df.Test)
+accuracy(mean_shipment, df.Test)
 
 ```
 
@@ -224,6 +253,8 @@ autolayer(df.hwMultiDamped$mean, series = "predicted") + ggtitle("Damped Multipl
 @This: Da dis model inetue namens "df.lin"
 
 ```{r}
+
+
 
 accDf <- rbind(
   accuracy(df.lin$mean, df.Test),
