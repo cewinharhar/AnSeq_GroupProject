@@ -72,6 +72,8 @@ autoplot(data$N1483)
 #use variable for future tasks
 df.Train <- data$N1483$x
 df.Test <- data$N1483$xx
+df.Test_sub <- window(data$N1483$xx , end=1995)
+autoplot(df.Test_sub)
 ```
 
 ```{r}
@@ -109,41 +111,59 @@ USE *MAE* BECAUSE OF UNITS
 
 ## Discussion
 
-snaive und mean kann generell ausgeschlossen werden?
+As described in the explorative analysis, the time series contains a upwards trend as well as no seasonality. Due to these characteristics of the time series, the average method model can be neglected preliminary.
 
-h=20?
+Based on the characteristics of the time series, the expectation is that the random walk with drift forecasts the best compared to other simple models as this method forecasts based on the last available observation with the added average of the time series. This characteristic more likely describes the increasing trend in the time series.
 
-box test
+The following table illustrates the performance of a the naïve and random walk with drift method based on the chosen indicators. The table shows that MAE and MAPE of the seasonally naive are quite high. Whereas the random walk method with drift and the naive model have the lowest indicators.(MAE und was noch?)
 
-naive und rwf gleiches resultat?
+As visualized in appendix y the residuals of the seasonal naïve forecasting method remain rather high. The high residuals of the seasonal naïve model are expected as the chosen time series has no seasonality. Eventhough the seasonal naïve model has a p-value of 0.6792 with a Q\* of 7.4828 and therefore is not rejected by ull hypothesis of the Ljung-Box test, the model is no suitable as the residuals are too high.
 
-Naive besser als drift methode? wieso?
+Comparing the indicators of the naïve and the random walk method, we see that the random walk method is slightly better in training accuracy. However, the naïve method performs better on test data than the random walk with drift. This can be explained by the fact that the slope of the trend decreases slightly towards the end of the time series.
+
+The Indicators of the naïve and the random walk method are clearly better than the seasonal naïve methode. Although for both models, the null hypothesis of the Ljung-Box test has to be rejected as the p-value is 0.006729 with a Q\* of 24.348 and 0.003784 with a Q\* of 24.348 respectively. Thus, both forecasts are biased. Consequently, none of the simple models is suitable for the given time series.
+
+Notes:
+
+Prognose über kleineren Zeitraum für suitable model\`? wie kann ich das machen?
+
+Random walk with drift jedes mal ausschreiben?
+
+A good way to choose the best forecasting model is to nd the model with the smallest RMSE computed using time series cross-validation. Tool box Slide 50
+
+Training und Test liefert unterschiedliche Resultate -- consider Cross validation
 
 ## Fitting
 
 ```{r}
-naive_shipment <- naive(df.Train, h=20)
+naive_shipment <- naive(df.Train, h=18)
 autoplot(naive_shipment)
-rwf_shipment <- rwf(df.Train, drif=TRUE, h=20)
+snaive_shipment <- snaive(df.Train, h=18)
+autoplot(snaive_shipment)
+rwf_shipment <- rwf(df.Train, drift = TRUE, h=18)
 autoplot(rwf_shipment)
-mean_shipment <- meanf(df.Train, h=20)
-autoplot(mean_shipment)
 
 autoplot(rwf_shipment)+autolayer(fitted(rwf_shipment), series = "fitted")
 summary(rwf_shipment)
 
 
-checkresiduals(naive(df.Train))
-checkresiduals(rwf(df.Train))
+checkresiduals(naive_shipment)
+checkresiduals(snaive_shipment)
+checkresiduals(rwf_shipment)
 
 
 ```
 
 ```{r}
 accuracy(naive_shipment, df.Test)
+accuracy(snaive_shipment, df.Test)
 accuracy(rwf_shipment, df.Test)
-accuracy(mean_shipment, df.Test)
 
+
+#test mit kurzer prediction
+#accuracy(naive_shipment, df.Test_sub)
+#accuracy(snaive_shipment, df.Test_sub)
+#accuracy(rwf_shipment, df.Test_sub)
 ```
 
 # Exponential Smoothing (Kevin)
