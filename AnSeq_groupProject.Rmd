@@ -43,7 +43,6 @@ knitr::opts_chunk$set(message = FALSE)
 #needed libraries
 library(Mcomp)
 library(ggplot2)
-library()
 library(gridExtra)
 ```
 
@@ -293,6 +292,8 @@ We can see that the damped holts-Winter method outperformes the linear model. Th
 Furthermore the predicition interval of the linear model gets very high which makes it hard to predict far into the future.
 
 # ETS AND AUTO-ARIMA (Kevin)
+
+discuss exponential smoothing after checking ets()
 
 ## Fitting {#fitting-1}
 
