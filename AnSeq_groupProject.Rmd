@@ -172,6 +172,8 @@ accuracy(rwf_shipment, df.Test)
 
 For the different methods of the exponential smoothing, one may choose the one which fits best to the available data. In our case, due to the seasonal behaviour, the positive trend and the expected stagnation (which is normal for shipments in a company due to various reasons) we choose the holt-Winters damped multiplicative model but for a better overview we fitted all holt-winters model.
 
+CHECK WHICH MODEL IS BEST WITH ETS()
+
 ## Analysis
 
 ```{r}
