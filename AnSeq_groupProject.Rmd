@@ -171,8 +171,6 @@ accuracy(rwf_shipment, df.Test)
 
 For the different methods of the exponential smoothing, one may choose the one which fits best to the available data. In our case, due to the seasonal behaviour, the positive trend and the expected stagnation (which is normal for shipments in a company due to various reasons) we choose the holt-Winters damped multiplicative model but for a better overview we fitted all holt-winters model.
 
-CHECK WHICH MODEL IS BEST WITH ETS()
-
 ## Analysis
 
 ```{r}
@@ -203,7 +201,7 @@ df.hwMultiDampedPlot <- autoplot(df.hwMultiDamped, color="MultiMethod") +
 grid.arrange(df.hwAddPlot, df.hwAddDampedPlot,  df.hwMultiPlot, df.hwMultiDampedPlot, nrow=4)
 ```
 
-As can be seen from the above plots, the Damped Holt-Winter's multiplicative Method seems to be the most accurate (by eye) for the predictions. This doesnt Before evaluating the accuracy we want to check the residuals.
+As can be seen from the above plots, the Damped Holt-Winter's multiplicative Method seems to show a similar forecast to the test set. Before evaluating the accuracy we want to check the residuals.
 
 #### Residuals
 
@@ -211,7 +209,7 @@ As can be seen from the above plots, the Damped Holt-Winter's multiplicative Met
 checkresiduals(df.hwMultiDamped)
 ```
 
-The Ljung-Box test shows a p-value \<\< 0.05 and therefore the NUll-Hypothesis is rejected. The residuals migt be auto-correlated.
+The Ljung-Box test shows a p-value \<\< 0.05 and therefore the NUll-Hypothesis is rejected. The residuals might be auto-correlated.
 
 From the ACF a pattern is difficult to detect but s significant-autocorrelation is shown at lag 4 and 11. R12 is small and indicates no seasonality.
 
@@ -231,7 +229,7 @@ print(accDf)
 
 ```
 
-It can be seen that the multiplicative Method shows the best overall results for the fitting.
+It can be seen that the multiplicative Method shows the best results for the fitting in this scenario.
 
 But how are the forecasting results for these models. For this approach the accuracy of the models mean prediction with the test data is calculated:
 
@@ -269,19 +267,15 @@ autolayer(df.hwMultiDamped$mean, series = "predicted") + ggtitle("Damped Multipl
 
 ```
 
-## Comparison with simple model
-
-@This: Da dis model inetue namens "df.lin"
+## Comparison with simple model (THIS)
 
 ```{r}
 
-
-
 accDf <- rbind(
-  accuracy(df.lin$mean, df.Test),
+  accuracy(df.lin$mean, df.Test),  #da chunt dis beste model ine
   accuracy(df.hwAddDamped$mean, df.Test)
 ) 
-rownames(accDf) <- c("linear", "hw damped Multiplicative")
+rownames(accDf) <- c("XXX", "hw damped Multiplicative")
 
 print(accDf)
 
@@ -293,27 +287,100 @@ Furthermore the predicition interval of the linear model gets very high which ma
 
 # ETS AND AUTO-ARIMA (Kevin)
 
-discuss exponential smoothing after checking ets()
-
 ## Fitting {#fitting-1}
 
-```{r}
-
-```
-
-## Analysis {#analysis-1}
+#### ETS
 
 ```{r}
 
+df.ets <- ets(df.Train)
+summary(df.ets)
+
+autoplot(df.ets)
+
+checkresiduals(df.ets)
+
 ```
 
-## Discussion
+The ets approach defined holts damped linear trend method to be the most suitable candidate.
 
-blabla
+The p-value is \> 0.5 and the AFC doesn't show any correlation which is good. The Residual spread looks normal with no clear bias visible.
+
+#### auto.arima
+
+The data doesn't seem to have changing variance and therefore the log10 transformation is not used.
+
+```{r}
+
+df.autoarima <- auto.arima(df.Train)
+summary(df.autoarima)
+
+checkresiduals(df.autoarima)
+
+```
+
+The auto.arima approach defined ARIMA(0,1,1) with drift to be the best candidate. This means its a model with no autoregression, using the first derivative and considering seasonality. Additionaly a constant is used which is shows as drift.
+
+The p-value is \>\> 0.5 and the AFC doesnt show any correlation which is good. The Residual spread looks normal with no clear bias visible.
+
+## Perfomance analysis {#analysis-1}
+
+### Test set
+
+```{r}
+
+df.etsFor <- df.ets %>% forecast(h=18) 
+df.autoarimaFor <- df.autoarima %>% forecast(h=18) 
+
+accDf <- rbind(
+  accuracy(df.etsFor$mean, df.Test),
+  accuracy(df.autoarimaFor$mean, df.Test)
+) 
+rownames(accDf) <- c("ets", "autoarima")
+
+print(accDf)
+
+```
+
+As we can see from the forecasting accuracy (MAE) on the test set, the autoarima model shows a better result than the ets approach by almost 400 error units.
+
+Nevertheless, a better approach to choose the forecasting model is to run a crossvalidation with the original data containing train and test set.
+
+### CV on train & test set
+
+```{r}
+#the result of ets gave an additive error, damped additive trend and no season holts approach (holt)
+holtError <- tsCV(original, holt, drift = TRUE, h=1, damped = TRUE)
+
+#results of auto.arima gave ARIMA(0,1,1) with constant
+arimaFun <- function(x, h){forecast(Arima(x, order=c(0,1,1)), h=h, include.constant = TRUE)} #helper function
+arimaError <- tsCV(original, arimaFun, h=1)
+
+print("Holt CV RMSE")
+print(sqrt(mean(holtError^2, na.rm = TRUE)))
+print("Arima CV RMSE")
+print(sqrt(mean(arimaError^2, na.rm = TRUE)))
+
+```
+
+For the Cross-Validation with Train and Test set we see that the RMSE of the holts linear trend is smaller than the Arima(0,1,1) approach. Nevertheless, with a difference of only 55.02 the decision for the better model is still difficult.
+
+```{r}
+autoplot(original, series = "original") +
+autolayer(df.ets$fitted, series = "fitted") +
+autolayer(df.etsFor$mean, series = "predicted") + ggtitle("ETS approach")
+
+autoplot(original, series = "original") +
+autolayer(df.autoarima$fitted, series = "fitted") +
+autolayer(df.autoarimaFor$mean, series = "predicted") + ggtitle("Auto Arima approach")
+
+```
 
 ## Comparison with other models
 
 ```{r}
+
+
 
 ```
 
