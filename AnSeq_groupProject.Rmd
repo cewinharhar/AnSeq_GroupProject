@@ -48,11 +48,15 @@ library(gridExtra)
 
 # Introduction (Kevin)
 
-The goal of this project is to sharpen our time series forcasting skills as well as the interpretation of the generated predictions.
+The objective of this report is to evaluate various existing forecasting methods and model families and to improve understanding of the specific advantages and disadvantages of each approach. Theproject is conducted on an existing time series dataset within the Mcomp package. The following analysis and model evaluation is based on the monthly broadcast dataset "N1483".
+
+After an initial exploratory analysis of the data, three different model families of increasing complexity are are evaluated and tested. The individual model performance is assessed by the specific family characteristics as well as general performance indicators. In addition, two appropriate indicators have been defined to facilitate the comparison of models from different model families.
 
 ## Data
 
 We use the data called n1490 which are datapoints for amazon shipments between the years 1990 to 1996
+
+Data können wir rausnehmen --\> R in Exploratory Datan Analysis nehmen
 
 ```{r}
 subset(M3, "monthly")["N1483"] %>% str()
@@ -84,7 +88,7 @@ ggseasonplot(df.Train, year.labels=TRUE, year.labels.left=TRUE) +
 
 ggAcf(df.Train) 
 
-gglagplot(df.Train)
+
 
 ```
 
@@ -94,17 +98,15 @@ The following section outlines the selected dataset in an explanatory manner to 
 
 The chosen dataset consists of 126 entries containing shipment data from 1985 to 1995 with a monthly frequency. As being part of the M3 competition data set, the given time series is already split up in a training and testing set containing 108 and 18 entries respectively.
 
-As represented in the chart N1483, the chosen time series indicates a strong trend as the "amount" of shipments are growing constantly from 1985 to 1995. Furthermore, the graph implies that the time series has no seasonality. The mentioned constant trend and lack of seasonality can also be observed in appendix x and y. Appendix x clearly depicts that there is a constant growing trend in each month over the years in the given time series. In addition, this constant increasing trend over the months underlines that there is no seasonality in sequential data. The same observation can be made in appendix y, which clearly shows that there is now no seasonality as the plotted yearly shipments have no common peaks or lows. Instead the yearly lines tend to increase during the year. This growth over the year leads to the gaps between the line graphs, which represent the shipment over a year. Those described features emphasize the fact that the time series has an increasing trend and no seasonality.
-
-Cycling trend ? -- Meiner Meinung nach nicht
+As represented in the chart N1483, the chosen time series indicates a strong trend as the "amount" of shipments are growing constantly from 1985 to 1995 with a slightly staginating trend towards the end of the time series. Furthermore, the graph implies that the time series has no seasonality. The mentioned constant trend and lack of seasonality can also be observed in appendix x and y. Appendix x clearly depicts that there is a constant growing trend in each month over the years in the given time series. In addition, this constant increasing trend over the months underlines that there is no seasonality in sequential data. The same observation can be made in appendix y, which clearly shows that there is now no seasonality as the plotted yearly shipments have no common peaks or lows. Instead the yearly lines tend to increase during the year. This growth over the year leads to the gaps between the line graphs, which represent the shipment over a year. Those described features emphasize the fact that the time series has an increasing trend and no seasonality.
 
 The correlogram as well as the seasonal lag plot in appendix x and z, strengthen the assumption of an increasing trend and a missing seasonality. The autocorrelogram (ACF) in appendix x manifest that the autocorrelations for smaller lags are large and positive, which is typically for trendy data. ACF decreases over time - Rückschlüsse besprechen mit Kevin
-
-GGlagplot mit kevin besprechen alle nahe zusammen jedoch eine Verschiebung zu sehen
 
 # Indicators (Kevin)
 
 USE *MAE* BECAUSE OF UNITS
+
+Ist nicht MAPE independent of scale?
 
 # Simple Model (This)
 
@@ -114,37 +116,40 @@ As described in the explorative analysis, the time series contains a upwards tre
 
 Based on the characteristics of the time series, the expectation is that the random walk with drift forecasts the best compared to other simple models as this method forecasts based on the last available observation with the added average of the time series. This characteristic more likely describes the increasing trend in the time series.
 
-The following table illustrates the performance of a the naïve and random walk with drift method based on the chosen indicators. The table shows that MAE and MAPE of the seasonally naive are quite high. Whereas the random walk method with drift and the naive model have the lowest indicators.(MAE und was noch?)
+The following table illustrates the performance of a the naïve, seasonal naïve and random walk with drift method based on the chosen indicators. The table shows that MAE and RSME of the seasonally naive are quite high. Whereas the random walk method with drift and the naive model have the lowest indicators.
 
-As visualized in appendix y the residuals of the seasonal naïve forecasting method remain rather high. The high residuals of the seasonal naïve model are expected as the chosen time series has no seasonality. Eventhough the seasonal naïve model has a p-value of 0.6792 with a Q\* of 7.4828 and therefore is not rejected by ull hypothesis of the Ljung-Box test, the model is no suitable as the residuals are too high.
+```{r}
+naive_shipment <- naive(df.Train, h=length(df.Test))
+snaive_shipment <- snaive(df.Train, h=length(df.Test))
+rwf_shipment <- rwf(df.Train, drift = TRUE, h=length(df.Test))
 
-Comparing the indicators of the naïve and the random walk method, we see that the random walk method is slightly better in training accuracy. However, the naïve method performs better on test data than the random walk with drift. This can be explained by the fact that the slope of the trend decreases slightly towards the end of the time series.
+accSimple <- rbind(
+  accuracy(naive_shipment, df.Test),
+  accuracy(snaive_shipment, df.Test),
+  accuracy(rwf_shipment, df.Test)
+) 
+rownames(accSimple) <- c("Naive Model - Training", "Naive Model - Test", "Seasonal Naive Model - Training","Seasonal Naive Model- Test", "Random walk with drift - Training", "Random walk with drift -Test ")
 
-The Indicators of the naïve and the random walk method are clearly better than the seasonal naïve methode. Although for both models, the null hypothesis of the Ljung-Box test has to be rejected as the p-value is 0.006729 with a Q\* of 24.348 and 0.003784 with a Q\* of 24.348 respectively. Thus, both forecasts are biased. Consequently, none of the simple models is suitable for the given time series.
+accSimple[, c(2:3)]
+```
 
-Notes:
+As visualized in appendix y the residuals of the seasonal naïve forecasting method remain rather high. The high residuals of the seasonal naïve model are expected as the chosen time series has no seasonality. Eventhough the seasonal naïve model has a p-value of 0.6792 with a Q\* of 7.4828 and therefore is not rejected by null hypothesis of the Ljung-Box test, the model is no suitable as the residuals are too high.
 
-Prognose über kleineren Zeitraum für suitable model\`? wie kann ich das machen?
+Comparing the indicators of the naïve and the random walk method, we see that the random walk method is slightly better in training accuracy. However, the naïve model performs better on test data than the random walk with drift. This can be explained by the fact that the slope of the trend decreases slightly towards the end of the time series.
 
-Random walk with drift jedes mal ausschreiben?
-
-A good way to choose the best forecasting model is to nd the model with the smallest RMSE computed using time series cross-validation. Tool box Slide 50
-
-Training und Test liefert unterschiedliche Resultate -- consider Cross validation
+The indicators of the naïve and the random walk method are clearly better than the seasonal naïve methode. Although for both models, the null hypothesis of the Ljung-Box test has to be rejected as the p-value is 0.006729 with a Q\* of 24.348 and 0.003784 with a Q\* of 24.348 respectively. Thus, both forecasts are biased. Consequently, none of the simple models is suitable for the given time series.
 
 ## Fitting
 
 ```{r}
-naive_shipment <- naive(df.Train, h=18)
-autoplot(naive_shipment)
-snaive_shipment <- snaive(df.Train, h=18)
+
 autoplot(snaive_shipment)
-rwf_shipment <- rwf(df.Train, drift = TRUE, h=18)
 autoplot(rwf_shipment)
 
-autoplot(rwf_shipment)+autolayer(fitted(rwf_shipment), series = "fitted")
+autoplot(naive_shipment)+autolayer(fitted(naive_shipment), series = "fitted")
+summary(naive_shipment)
+summary(snaive_shipment)
 summary(rwf_shipment)
-
 
 checkresiduals(naive_shipment)
 checkresiduals(snaive_shipment)
@@ -154,15 +159,10 @@ checkresiduals(rwf_shipment)
 ```
 
 ```{r}
-accuracy(naive_shipment, df.Test)
-accuracy(snaive_shipment, df.Test)
-accuracy(rwf_shipment, df.Test)
 
 
-#test mit kurzer prediction
-#accuracy(naive_shipment, df.Test_sub)
-#accuracy(snaive_shipment, df.Test_sub)
-#accuracy(rwf_shipment, df.Test_sub)
+
+
 ```
 
 # Exponential Smoothing (Kevin)
@@ -170,6 +170,8 @@ accuracy(rwf_shipment, df.Test)
 ## Discussion {#discussion-2}
 
 For the different methods of the exponential smoothing, one may choose the one which fits best to the available data. In our case, due to the seasonal behaviour, the positive trend and the expected stagnation (which is normal for shipments in a company due to various reasons) we choose the holt-Winters damped multiplicative model but for a better overview we fitted all holt-winters model.
+
+#das model hat keine seasonality
 
 ## Analysis
 
@@ -233,6 +235,8 @@ It can be seen that the multiplicative Method shows the best results for the fit
 
 But how are the forecasting results for these models. For this approach the accuracy of the models mean prediction with the test data is calculated:
 
+wieso mean? eigentlich wäre nur test interessant und minus wert?
+
 ```{r}
 
 accDf <- rbind(
@@ -262,28 +266,32 @@ original <- ts(c(df.Train,df.Test), start=start(df.Train), frequency=frequency(d
 
 autoplot(original, series = "original") +
 autolayer(df.hwMultiDamped$fitted, series = "fitted") +
-autolayer(df.hwMultiDamped$mean, series = "predicted") + ggtitle("Damped Multiplicative")
+autolayer(df.hwMultiDamped$mean, series = "predicted") +
+ggtitle("Damped Multiplicative")
 
 
 ```
 
 ## Comparison with simple model (THIS)
 
+The performance indicators in the table above ilustrate that the damped holts-Winter method outperformes the simple mode on the training set. Surprisingly, the Simple Model performs better than Exponential Smoothing Models on the test data. This is surprising, since Simple Models are normally only applicable for very simple models and short prediction intervals.
+
 ```{r}
 
 accDf <- rbind(
-  accuracy(df.lin$mean, df.Test),  #da chunt dis beste model ine
-  accuracy(df.hwAddDamped$mean, df.Test)
+  accuracy(naive_shipment, df.Test),  
+  accuracy(df.hwMultiDamped, df.Test) #Anpassung des Models
 ) 
-rownames(accDf) <- c("XXX", "hw damped Multiplicative")
+rownames(accDf) <- c("Naive Model - Training", "Naive Model - Test", "hw damped Multiplicative - Training", "hw damped Multiplicative - Training")
 
-print(accDf)
+accDf[, c(2:3)]
 
+
+#accuracy(naive_shipment, df.Test)  #da chunt dis beste model ine
+#accuracy(df.hwMultiDamped, df.Test)
 ```
 
-We can see that the damped holts-Winter method outperformes the linear model. This
-
-Furthermore the predicition interval of the linear model gets very high which makes it hard to predict far into the future.
+Since we have already stated in the previous chapter that the chosen time series is too complex for simple models, we can conclude that exponential smoothings models are not suitable either. Since the Exponential Smoothing Models performed even worse in our test.
 
 # ETS AND AUTO-ARIMA (Kevin)
 
@@ -386,4 +394,11 @@ autolayer(df.autoarimaFor$mean, series = "predicted") + ggtitle("Auto Arima appr
 
 # Conclusion (This)
 
-blabla
+After having fitted and compared three different types of model families in the section before, this section summarizes and concludes the most important insights gained from this experiment on analysis of time series data.
+
+As the time series consists of characteristics which are rather hard to be modelled, there is no specific model which fits the underlying complexity of the chosen time series specifically well. In general, simple models are unable to provide reliable forecasts for a time series with such characteristics. This can be seen in the high values of the indicators. Exponential smoothing methods such as Holt-Winter's multiplicative method, on the other hand, have better performance indicators in the training data because they account for trend and seasonality simultaneously. However, even these methods did not perform sufficiently in the test data. This can be justified by the backward trend in the training set in the given time series. Conclusion on Arima missing
+
+```{r}
+#anhang
+
+```
