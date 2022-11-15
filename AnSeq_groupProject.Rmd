@@ -1,6 +1,7 @@
 ---
-title: 'AnSeq_groupProject'
-output: pdf_document
+title: "AnSeq_groupProject"
+output:
+  pdf_document: default
 ---
 
 -   [Introduction]
@@ -46,20 +47,16 @@ library(ggplot2)
 library(gridExtra)
 ```
 
-# Introduction (Kevin)
+\pagebreak
+
+# Introduction
 
 The objective of this report is to evaluate various existing forecasting methods and model families and to improve understanding of the specific advantages and disadvantages of each approach. Theproject is conducted on an existing time series dataset within the Mcomp package. The following analysis and model evaluation is based on the monthly broadcast dataset "N1483".
 
 After an initial exploratory analysis of the data, three different model families of increasing complexity are are evaluated and tested. The individual model performance is assessed by the specific family characteristics as well as general performance indicators. In addition, two appropriate indicators have been defined to facilitate the comparison of models from different model families.
 
-## Data
-
-We use the data called n1490 which are datapoints for amazon shipments between the years 1990 to 1996
-
-Data können wir rausnehmen --\> R in Exploratory Datan Analysis nehmen
-
-```{r}
-subset(M3, "monthly")["N1483"] %>% str()
+```{r,  out.width = "75%"} 
+subset(M3, "monthly")["N1483"]
 
 data <- subset(M3, "monthly")["N1483"]
 
@@ -67,11 +64,12 @@ autoplot(data$N1483)
 
 ```
 
-# Exploratory Data Analysis (EDA) {#part-1---exploratory-data-analysis-eda} (This)
+\pagebreak
+# Exploratory Data Analysis (EDA) {#part-1---exploratory-data-analysis-eda}
 
 ## Visualization
 
-```{r}
+```{r,  out.width = "75%"}
 #use variable for future tasks
 df.Train <- data$N1483$x
 df.Test <- data$N1483$xx
@@ -79,17 +77,20 @@ df.Test_sub <- window(data$N1483$xx , end=1995)
 autoplot(df.Test_sub)
 ```
 
-```{r}
+```{r,  out.width = "75%"}
 ggsubseriesplot(df.Train) +
   ggtitle("Seasonal plot: Monthly shipments")
+```
 
+
+```{r,  out.width = "75%"}
 ggseasonplot(df.Train, year.labels=TRUE, year.labels.left=TRUE) +
   ggtitle("Seasonal plot: Monthly shipments")
+```
 
+
+```{r,  out.width = "75%"}
 ggAcf(df.Train) 
-
-
-
 ```
 
 ## Discussion
@@ -98,27 +99,27 @@ The following section outlines the selected dataset in an explanatory manner to 
 
 The chosen dataset consists of 126 entries containing shipment data from 1985 to 1995 with a monthly frequency. As being part of the M3 competition data set, the given time series is already split up in a training and testing set containing 108 and 18 entries respectively.
 
-As represented in the chart N1483, the chosen time series indicates a strong trend as the "amount" of shipments are growing constantly from 1985 to 1995 with a slightly staginating trend towards the end of the time series. Furthermore, the graph implies that the time series has no seasonality. The mentioned constant trend and lack of seasonality can also be observed in appendix x and y. Appendix x clearly depicts that there is a constant growing trend in each month over the years in the given time series. In addition, this constant increasing trend over the months underlines that there is no seasonality in sequential data. The same observation can be made in appendix y, which clearly shows that there is now no seasonality as the plotted yearly shipments have no common peaks or lows. Instead the yearly lines tend to increase during the year. This growth over the year leads to the gaps between the line graphs, which represent the shipment over a year. Those described features emphasize the fact that the time series has an increasing trend and no seasonality.
+As represented in the chart N1483, the chosen time series indicates a strong trend as the "amount" of shipments are growing constantly from 1985 to 1995 with a slightly stagnating trend towards the end of the time series. Furthermore, the graph implies that the time series has no seasonality. The mentioned constant trend and lack of seasonality can also be observed in appendix x and y. Appendix x clearly depicts that there is a constant growing trend in each month over the years in the given time series. In addition, this constant increasing trend over the months underlines that there is no seasonality in sequential data. The same observation can be made in appendix y, which clearly shows that there is now no seasonality as the plotted yearly shipments have no common peaks or lows. Instead the yearly lines tend to increase during the year. This growth over the year leads to the gaps between the line graphs, which represent the shipment over a year. Those described features emphasize the fact that the time series has an increasing trend and no seasonality.
 
-The correlogram as well as the seasonal lag plot in appendix x and z, strengthen the assumption of an increasing trend and a missing seasonality. The autocorrelogram (ACF) in appendix x manifest that the autocorrelations for smaller lags are large and positive, which is typically for trendy data. ACF decreases over time - Rückschlüsse besprechen mit Kevin
+The correlogram as well as the seasonal lag plot in appendix x and z, strengthen the assumption of an increasing trend and a missing seasonality. The autocorrelogram (ACF) in appendix x manifest that the autocorrelations for smaller lags are large and positive, which is typically for trendy data. 
 
-# Indicators (Kevin)
+# Indicators
 
-USE *MAE* BECAUSE OF UNITS
+In order to measure the performance of each model, two indicators were defined.
 
-Ist nicht MAPE independent of scale?
-
-# Simple Model (This)
+For the indicators the choice was the mean absolute error (MAE) and the root mean square error (RMSE). The RMSE calculates the standard deviation and the spreading of the residuals. The goal is to have an RMSE as low as possible with a rough goal of 500. The MAE is the mean absolute error which includes the effect of the absolute errors and is not strongly influenced by outliers. The goal was set to 500 as well.
+\pagebreak
+# Simple Model
 
 ## Discussion
 
-As described in the explorative analysis, the time series contains a upwards trend as well as no seasonality. Due to these characteristics of the time series, the average method model can be neglected preliminary.
+As described in the exploratory analysis, the time series contains a upwards trend as well as no seasonality. Due to these characteristics of the time series, the average method model can be neglected preliminary.
 
 Based on the characteristics of the time series, the expectation is that the random walk with drift forecasts the best compared to other simple models as this method forecasts based on the last available observation with the added average of the time series. This characteristic more likely describes the increasing trend in the time series.
 
 The following table illustrates the performance of a the naïve, seasonal naïve and random walk with drift method based on the chosen indicators. The table shows that MAE and RSME of the seasonally naive are quite high. Whereas the random walk method with drift and the naive model have the lowest indicators.
 
-```{r}
+```{r,  out.width = "75%"}
 naive_shipment <- naive(df.Train, h=length(df.Test))
 snaive_shipment <- snaive(df.Train, h=length(df.Test))
 rwf_shipment <- rwf(df.Train, drift = TRUE, h=length(df.Test))
@@ -128,7 +129,11 @@ accSimple <- rbind(
   accuracy(snaive_shipment, df.Test),
   accuracy(rwf_shipment, df.Test)
 ) 
-rownames(accSimple) <- c("Naive Model - Training", "Naive Model - Test", "Seasonal Naive Model - Training","Seasonal Naive Model- Test", "Random walk with drift - Training", "Random walk with drift -Test ")
+rownames(accSimple) <- c("Naive Model - Training", "Naive Model - Test", 
+                         "Seasonal Naive Model - Training",
+                         "Seasonal Naive Model- Test", 
+                         "Random walk with drift - Training", 
+                         "Random walk with drift -Test ")
 
 accSimple[, c(2:3)]
 ```
@@ -141,46 +146,35 @@ The indicators of the naïve and the random walk method are clearly better than 
 
 ## Fitting
 
-```{r}
-
-autoplot(snaive_shipment)
-autoplot(rwf_shipment)
-
+```{r,  out.width = "75%"}
 autoplot(naive_shipment)+autolayer(fitted(naive_shipment), series = "fitted")
-summary(naive_shipment)
-summary(snaive_shipment)
-summary(rwf_shipment)
+```   
 
+```{r,  out.width = "75%"}
 checkresiduals(naive_shipment)
 checkresiduals(snaive_shipment)
 checkresiduals(rwf_shipment)
-
-
 ```
 
-```{r}
-
-
-
-
-```
-
-# Exponential Smoothing (Kevin)
+# Exponential Smoothing
 
 ## Discussion {#discussion-2}
 
-For the different methods of the exponential smoothing, one may choose the one which fits best to the available data. In our case, due to the seasonal behaviour, the positive trend and the expected stagnation (which is normal for shipments in a company due to various reasons) we choose the holt-Winters damped multiplicative model but for a better overview we fitted all holt-winters model.
-
-#das model hat keine seasonality
+For the different methods of the exponential smoothing, one may choose the one which fits best to the available data. In our case due to the positive trend and the expected stagnation (which is normal for shipments in a company due to various reasons) we choose the holt-Winters damped multiplicative model but for a better overview we fitted all holt-winters model.
 
 ## Analysis
 
 ```{r}
 
-df.hwAdd <- hw(df.Train, seasonal = "additive", h = length(df.Test))
-df.hwAddDamped <- hw(df.Train, seasonal = "additive", damped = TRUE, h = length(df.Test))
-df.hwMulti <- hw(df.Train, seasonal = "multiplicative", h = length(df.Test))
-df.hwMultiDamped <- hw(df.Train, seasonal = "multiplicative", damped = TRUE, h = length(df.Test))
+df.hwAdd <- hw(df.Train, seasonal = "additive", 
+               h = length(df.Test))
+df.hwAddDamped <- hw(df.Train, seasonal = "additive", 
+                     damped = TRUE, 
+                     h = length(df.Test))
+df.hwMulti <- hw(df.Train, seasonal = "multiplicative", 
+                 h = length(df.Test))
+df.hwMultiDamped <- hw(df.Train, seasonal = "multiplicative", 
+                       damped = TRUE, h = length(df.Test))
 
 #plot
 
@@ -200,14 +194,15 @@ df.hwMultiDampedPlot <- autoplot(df.hwMultiDamped, color="MultiMethod") +
   labs(x="Time", y="Shipments", color = "Legend") +
   autolayer(df.Test)
 
-grid.arrange(df.hwAddPlot, df.hwAddDampedPlot,  df.hwMultiPlot, df.hwMultiDampedPlot, nrow=4)
+grid.arrange(df.hwAddPlot, df.hwAddDampedPlot,  
+             df.hwMultiPlot, df.hwMultiDampedPlot, nrow=4)
 ```
 
 As can be seen from the above plots, the Damped Holt-Winter's multiplicative Method seems to show a similar forecast to the test set. Before evaluating the accuracy we want to check the residuals.
 
 #### Residuals
 
-```{r}
+```{r,  out.width = "75%"}
 checkresiduals(df.hwMultiDamped)
 ```
 
@@ -217,7 +212,7 @@ From the ACF a pattern is difficult to detect but s significant-autocorrelation 
 
 Accuracy of the fitted values for the training data
 
-```{r}
+```{r,  out.width = "75%"}
 
 accDf <- rbind(
   accuracy(df.hwAdd$fitted, df.Train),
@@ -225,9 +220,10 @@ accDf <- rbind(
   accuracy(df.hwMulti$fitted, df.Train),
   accuracy(df.hwMultiDamped$fitted, df.Train)
 ) 
-rownames(accDf) <- c("hw Additive", "hw damped Additive", "hw Multiplicative", "hw damped Multiplicative")
+rownames(accDf) <- c("hw Additive", "hw damped Additive", 
+                     "hw Multiplicative", "hw damped Multiplicative")
 
-print(accDf)
+print(accDf[,2:3])
 
 ```
 
@@ -235,9 +231,7 @@ It can be seen that the multiplicative Method shows the best results for the fit
 
 But how are the forecasting results for these models. For this approach the accuracy of the models mean prediction with the test data is calculated:
 
-wieso mean? eigentlich wäre nur test interessant und minus wert?
-
-```{r}
+```{r,  out.width = "75%"}
 
 accDf <- rbind(
   accuracy(df.hwAdd$mean, df.Test),
@@ -245,22 +239,25 @@ accDf <- rbind(
   accuracy(df.hwMulti$mean, df.Test),
   accuracy(df.hwMultiDamped$mean, df.Test)
 ) 
-rownames(accDf) <- c("hw Additive", "hw damped Additive", "hw Multiplicative", "hw damped Multiplicative")
+rownames(accDf) <- c("hw Additive", "hw damped Additive",
+                     "hw Multiplicative", "hw damped Multiplicative")
 
-print(accDf)
+print(accDf[,2:3])
 ```
 
-For the forcasting the damped multiplicative model shows the best RMSE with 1147.369. Nevertheless, the prediction interval is higher than the undamped model and should therefore be considered. The reason why the damped multiplicative model outperformed for forecasting can be explained as followed: The data which are handled are shipments over the years. Although the increase in shipemnts over the years seems linear, a company may come to stagnation for various reasons (political, economical, logistical). Therefore with the usage of the damped model this stagnation is considered which can be seen for the $\phi$ parameter in the following block.
+For the forcasting the damped multiplicative model shows the best RMSE with 1147.369. Nevertheless, the prediction interval is higher than the undamped model and should therefore be considered. The reason why the damped multiplicative model outperformed for forecasting can be explained as followed: The data which are handled are shipments over the years. Although the increase in shipments over the years seems linear, a company may come to stagnation for various reasons (political, economical, logistical). Therefore with the usage of the damped model this stagnation is considered which can be seen for the $\phi$ parameter in the following block.
 
-```{r}
-summary(df.hwMultiDamped$model)
+```{r,  out.width = "75%"}
+summary(df.hwMultiDamped$model)$par
 ```
 
 The $\phi$ Parameter has the value 0.98 which shows the change of the slope over time.
 
+Nevertheless, this is just a hypothesis and more time has to be invested to justify this.
+
 Here the original and fitted values from the damped multiplicative model.
 
-```{r}
+```{r,  out.width = "75%"}
 
 original <- ts(c(df.Train,df.Test), start=start(df.Train), frequency=frequency(df.Train))
 
@@ -272,62 +269,73 @@ ggtitle("Damped Multiplicative")
 
 ```
 
-## Comparison with simple model (THIS)
+## Comparison with simple model
 
-The performance indicators in the table above ilustrate that the damped holts-Winter method outperformes the simple mode on the training set. Surprisingly, the Simple Model performs better than Exponential Smoothing Models on the test data. This is surprising, since Simple Models are normally only applicable for very simple models and short prediction intervals.
+The performance indicators in the table above illustrate that the damped holts-Winter method outperforms the simple mode on the training set. Surprisingly, the Simple Model performs better than Exponential Smoothing Models on the test data. This is surprising, since Simple Models are normally only applicable for very simple models and short prediction intervals.
 
-```{r}
+```{r,  out.width = "75%"}
 
 accDf <- rbind(
   accuracy(naive_shipment, df.Test),  
   accuracy(df.hwMultiDamped, df.Test) #Anpassung des Models
 ) 
-rownames(accDf) <- c("Naive Model - Training", "Naive Model - Test", "hw damped Multiplicative - Training", "hw damped Multiplicative - Training")
+rownames(accDf) <- c("Naive Model - Training", 
+                     "Naive Model - Test", "hw damped Multiplicative - Training",
+                     "hw damped Multiplicative - Test")
 
 accDf[, c(2:3)]
 
-
-#accuracy(naive_shipment, df.Test)  #da chunt dis beste model ine
-#accuracy(df.hwMultiDamped, df.Test)
 ```
 
-Since we have already stated in the previous chapter that the chosen time series is too complex for simple models, we can conclude that exponential smoothings models are not suitable either. Since the Exponential Smoothing Models performed even worse in our test.
+In the previous chapters it was stated that the chosen time series has high fluctuation and shows a general stagnation. This behavior is hard to model with simple models. Additionally we can conclude that exponential smoothing models are not suitable either since the Exponential Smoothing Models performed even worse in our test-set accuracy.
 
-# ETS AND AUTO-ARIMA (Kevin)
+\pagebreak
 
-## Fitting {#fitting-1}
+# ETS AND AUTO-ARIMA
 
-#### ETS
+## Analysis {#fitting-1}
 
-```{r}
+### ETS
 
+```{r,  out.width = "75%"}
 df.ets <- ets(df.Train)
 summary(df.ets)
+```
 
+
+```{r,  out.width = "75%"}
 autoplot(df.ets)
+```
 
+
+```{r,  out.width = "75%"}
 checkresiduals(df.ets)
-
 ```
 
 The ets approach defined holts damped linear trend method to be the most suitable candidate.
 
+The output of the ETS is explained as follows:
+
+The first A stands for the additive Noise, the second A defines an additive trend and the third N shows that there is no seasonality. Additionally the model does not add the damped factor $\phi$.
+
 The p-value is \> 0.5 and the AFC doesn't show any correlation which is good. The Residual spread looks normal with no clear bias visible.
 
-#### auto.arima
+### auto.arima
 
 The data doesn't seem to have changing variance and therefore the log10 transformation is not used.
 
-```{r}
-
+```{r,  out.width = "75%", echo = FALSE}
 df.autoarima <- auto.arima(df.Train)
 summary(df.autoarima)
-
-checkresiduals(df.autoarima)
-
 ```
 
-The auto.arima approach defined ARIMA(0,1,1) with drift to be the best candidate. This means its a model with no autoregression, using the first derivative and considering seasonality. Additionaly a constant is used which is shows as drift.
+The following plot shows the checkresidual function for the autoarima model. 
+
+```{r,  out.width = "75%"}
+checkresiduals(df.autoarima)
+```
+
+The auto.arima approach defined ARIMA(0,1,1) with drift to be the best candidate. This means its a model with no autoregression (first 0), using the first derivative (second 1) and considering seasonality (first order moving average part). Additionaly a constant is used which is shows as drift.
 
 The p-value is \>\> 0.5 and the AFC doesnt show any correlation which is good. The Residual spread looks normal with no clear bias visible.
 
@@ -335,18 +343,19 @@ The p-value is \>\> 0.5 and the AFC doesnt show any correlation which is good. T
 
 ### Test set
 
-```{r}
+```{r,  out.width = "75%"}
 
 df.etsFor <- df.ets %>% forecast(h=18) 
 df.autoarimaFor <- df.autoarima %>% forecast(h=18) 
 
 accDf <- rbind(
-  accuracy(df.etsFor$mean, df.Test),
-  accuracy(df.autoarimaFor$mean, df.Test)
+  accuracy(df.etsFor, df.Test),
+  accuracy(df.autoarimaFor, df.Test)
 ) 
-rownames(accDf) <- c("ets", "autoarima")
+rownames(accDf) <- c("ets - train","ets - test", "autoarima - train",
+                     "autoarima - test")
 
-print(accDf)
+print(accDf[,2:3])
 
 ```
 
@@ -356,24 +365,29 @@ Nevertheless, a better approach to choose the forecasting model is to run a cros
 
 ### CV on train & test set
 
-```{r}
+```{r,  out.width = "75%"}
 #the result of ets gave an additive error, damped additive trend and no season holts approach (holt)
 holtError <- tsCV(original, holt, drift = TRUE, h=1, damped = TRUE)
 
 #results of auto.arima gave ARIMA(0,1,1) with constant
-arimaFun <- function(x, h){forecast(Arima(x, order=c(0,1,1)), h=h, include.constant = TRUE)} #helper function
+arimaFun <- function(x, h){forecast(Arima(x, order=c(0,1,1)), 
+                                    h=h, include.constant = TRUE)} #helper function
 arimaError <- tsCV(original, arimaFun, h=1)
+```
 
-print("Holt CV RMSE")
+Holt CV RMSE
+```{r,  out.width = "75%"}
 print(sqrt(mean(holtError^2, na.rm = TRUE)))
-print("Arima CV RMSE")
-print(sqrt(mean(arimaError^2, na.rm = TRUE)))
+```
 
+Arima CV RMSE
+```{r,  out.width = "75%"}
+print(sqrt(mean(arimaError^2, na.rm = TRUE)))
 ```
 
 For the Cross-Validation with Train and Test set we see that the RMSE of the holts linear trend is smaller than the Arima(0,1,1) approach. Nevertheless, with a difference of only 55.02 the decision for the better model is still difficult.
 
-```{r}
+```{r,  out.width = "75%"}
 autoplot(original, series = "original") +
 autolayer(df.ets$fitted, series = "fitted") +
 autolayer(df.etsFor$mean, series = "predicted") + ggtitle("ETS approach")
@@ -386,19 +400,37 @@ autolayer(df.autoarimaFor$mean, series = "predicted") + ggtitle("Auto Arima appr
 
 ## Comparison with other models
 
-```{r}
+For the final comparison we take the models for each chapter which show the best results.
 
+The analysis showed that the simple and the holts-Winter damped multiplicative model are the most suitable candidates from their families in the case of our chosen time-series.
 
+The results of the ets / arima comparison showed that the holts damped linear trend was the best candidate for ets and ARIMA(0, 1, 1) the best for the auto.arima function.
+
+As a final thought, the fact that the Naive model outperformed the hw damped multiplicative as well as the ets (holts damped linear trend) model is based on the time series structure. The Training doesn't show a strong damped effect compared with the test series. This leads the models which include trend to overestimate the slope and therefore have a higher error than the models which consider a damped effect. This is also the reason why the naive model which only models a vertical line seems to outperform the more complex models. Nevertheless, the naive model would not be suitable for a more distant forecast and its explainability is not sufficient as well.
+
+```{r,  out.width = "75%"}
+accDf <- rbind(
+  accuracy(naive_shipment, df.Test),
+  accuracy(df.hwMultiDamped, df.Test),
+  accuracy(df.etsFor, df.Test),
+  accuracy(df.autoarimaFor, df.Test)
+) 
+
+rownames(accDf) <- c("Naive - Train", "Naive - Test", 
+                     "hw damped Multiplicative - Train", "hw damped Multiplicative - Test", 
+                     "ets(A,A,N) - Train", "ets(A,A,N) - Test", 
+                     "ARIMA(0,1,1) - Train", "ARIMA(0,1,1) - Test" )
+
+print(accDf[,2:3])
 
 ```
-
-# Conclusion (This)
+\pagebreak
+# Conclusion
 
 After having fitted and compared three different types of model families in the section before, this section summarizes and concludes the most important insights gained from this experiment on analysis of time series data.
 
-As the time series consists of characteristics which are rather hard to be modelled, there is no specific model which fits the underlying complexity of the chosen time series specifically well. In general, simple models are unable to provide reliable forecasts for a time series with such characteristics. This can be seen in the high values of the indicators. Exponential smoothing methods such as Holt-Winter's multiplicative method, on the other hand, have better performance indicators in the training data because they account for trend and seasonality simultaneously. However, even these methods did not perform sufficiently in the test data. This can be justified by the backward trend in the training set in the given time series. Conclusion on Arima missing
+As the time series consists of characteristics which are rather hard to be modeled. The damped effect in the test-set which is not clearly visible in the training makes it harder for the model to forecast. There is no specific model which fits the underlying complexity of the chosen time series specifically well.
 
-```{r}
-#anhang
+In general, simple models are unable to provide reliable far forecasts for a time series with such characteristics. This can be seen in the high values of the indicators (MAE and RMSE). Exponential smoothing methods such as Holt-Winter's multiplicative method, on the other hand, have better performance indicators in the training data because they account for trend and seasonality simultaneously. However, even these methods did not perform sufficiently in the test data. This can be justified by the stagnating trend in the training set in the given time series. The fact that the naive models performance is better than the Exponential smoothing methods can be seen as a result of of a probabilistic effect.
 
-```
+The arima approach ended up showing the most promising indicators for the test set. The autoregressive behavior lead to the stabilizing trend in the training data which decreased the error and linear-like forecast was sufficient enough to outperform all the other models in this case.
